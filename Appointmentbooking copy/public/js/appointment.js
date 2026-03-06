@@ -1,105 +1,143 @@
-window.addEventListener("DOMContentLoaded", () => {
-    axios.get("http://localhost:3000/users/getUsers")
-        .then((response) => {
+let editingUserId = null;
 
-            response.data.data.forEach(user => {
-                showUserOnScreen(user);
+// Load users when page loads
+window.addEventListener("DOMContentLoaded", () => {
+
+    axios.get("http://localhost:3000/users/getUsers")
+        .then((res) => {
+
+            const users = res.data.data;
+
+            users.forEach(user => {
+                displayUserOnScreen(user);
             });
 
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
+
 });
 
-let editingUserId = null;
 
+// Form submit
 function onSubmitHandler(event) {
+
     event.preventDefault();
 
-    const username = document.getElementById('username').value;
-    const phoneno = document.getElementById('phoneno').value;
-    const email = document.getElementById('email').value;
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const phoneno = document.getElementById("phoneno").value;
 
-    const obj = {
+    const userDetails = {
         username,
-        phoneno,
-        email
+        email,
+        phoneno
     };
 
+    // UPDATE USER
     if (editingUserId) {
 
-        axios.put(`http://localhost:3000/users/update/${editingUserId}`, obj)
-            .then((response) => {
+        axios.put(`http://localhost:3000/users/update/${editingUserId}`, userDetails)
+            .then(() => {
 
                 removeUserFromScreen(editingUserId);
-                showUserOnScreen(response.data.updatedUser);
+
+                userDetails.id = editingUserId; // keep same id
+                displayUserOnScreen(userDetails);
 
                 editingUserId = null;
 
-                document.getElementById('username').value = '';
-                document.getElementById('phoneno').value = '';
-                document.getElementById('email').value = '';
-
             })
-            .catch((err) => console.log(err));
-
-    } else {
-
-        axios.post('http://localhost:3000/users/addUser', obj)
-            .then((response) => {
-
-                showUserOnScreen(response.data.newUserDetail);
-
-                document.getElementById('username').value = '';
-                document.getElementById('phoneno').value = '';
-                document.getElementById('email').value = '';
-
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+            .catch(err => console.log(err));
 
     }
+
+    // CREATE USER
+    else {
+
+        axios.post("http://localhost:3000/users/addUser", userDetails)
+            .then((response) => {
+
+                displayUserOnScreen(response.data.data);
+
+            })
+            .catch(err => console.log(err));
+
+    }
+
+    // Clear form
+    document.getElementById("username").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("phoneno").value = "";
+
 }
 
-function editUser(userId, username, email, phoneno) {
 
-    document.getElementById('username').value = username;
-    document.getElementById('email').value = email;
-    document.getElementById('phoneno').value = phoneno;
 
-    editingUserId = userId;
+function displayUserOnScreen(user) {
+
+    const parentNode = document.getElementById("users");
+
+    const li = document.createElement("li");
+
+    li.id = user.id;
+
+    li.innerHTML = `${user.username} - ${user.email} - ${user.phoneno}`;
+
+    // DELETE BUTTON
+    const deleteBtn = document.createElement("button");
+
+    deleteBtn.textContent = "Delete";
+
+    deleteBtn.onclick = () => {
+
+        axios.delete(`http://localhost:3000/users/delete/${user.id}`)
+            .then(() => {
+
+                removeUserFromScreen(user.id);
+
+            })
+            .catch(err => console.log(err));
+
+    };
+
+
+
+    // EDIT BUTTON
+    const editBtn = document.createElement("button");
+
+    editBtn.textContent = "Edit";
+
+    editBtn.onclick = () => {
+
+        document.getElementById("username").value = user.username;
+        document.getElementById("email").value = user.email;
+        document.getElementById("phoneno").value = user.phoneno;
+
+        editingUserId = user.id;
+
+    };
+
+
+
+    li.appendChild(deleteBtn);
+    li.appendChild(editBtn);
+
+    parentNode.appendChild(li);
+
 }
 
-function showUserOnScreen(user) {
 
-    const parentNode = document.getElementById('users');
-
-    const childHTML = `
-        <li id=${user.id}>
-            ${user.username} - ${user.email} - ${user.phoneno}
-            <button onclick="deleteUser(${user.id})">Delete</button>
-            <button onclick="editUser(${user.id}, '${user.username}', '${user.email}', '${user.phoneno}')">Edit</button>
-        </li>
-    `;
-
-    parentNode.innerHTML += childHTML;
-}
-
-function deleteUser(userId) {
-
-    axios.delete(`http://localhost:3000/users/delete/${userId}`)
-        .then(() => {
-            removeUserFromScreen(userId);
-        })
-        .catch(err => console.log(err));
-}
 
 function removeUserFromScreen(userId) {
 
-    const parentNode = document.getElementById('users');
+    const parentNode = document.getElementById("users");
+
     const childNode = document.getElementById(userId);
 
     if (childNode) {
+
         parentNode.removeChild(childNode);
+
     }
+
 }

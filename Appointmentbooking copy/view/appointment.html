@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Book Appointment</title>
+</head>
+
+<body>
+
+    <h2>Book Appointment</h2>
+
+    <form onsubmit="onSubmitHandler(event)">
+
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="phoneno">Phone No</label>
+        <input type="number" id="phoneno" name="phoneno" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+
+        <button type="submit">Submit</button>
+
+    </form>
+    <h3>Appointments</h3>
+    <ul id="users"></ul>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/appointment.js"></script>
+</body>
+
+</html>

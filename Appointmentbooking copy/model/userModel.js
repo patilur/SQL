@@ -13,15 +13,15 @@ const Users = sequelize.define(
         },
         username: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: false
         },
         phoneno: {
             type: DataTypes.STRING,
-            allowNull: false
+            unique: true
         },
         email: {
             type: DataTypes.STRING,
-            allowNull: false
+            unique: true
             // allowNull defaults to true
         },
     },

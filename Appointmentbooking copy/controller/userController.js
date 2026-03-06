@@ -51,7 +51,7 @@ const getEntry = async (req, res) => {
 const updateEntry = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, phone, email } = req.body;
+        const { username, phoneno, email } = req.body;
 
         const user = await Users.findByPk(id);
 
@@ -61,8 +61,8 @@ const updateEntry = async (req, res) => {
             });
         }
 
-        user.username = name;
-        user.phoneno = phone;
+        user.username = username;
+        user.phoneno = phoneno;
         user.email = email;
 
         await user.save();

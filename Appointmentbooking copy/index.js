@@ -5,7 +5,7 @@ const db = require('./utils/db-connection');
 const userModel = require('./model/userModel');
 
 const app = express();
-
+const cors = require('cors')
 // Logging Middleware
 app.use((req, res, next) => {
     console.log(`${req.method} request made to ${req.url}`);
@@ -13,7 +13,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-
+app.use(cors());
 // Serve static files (JS, CSS, etc.)
 app.use(express.static(path.join(__dirname, 'public')));
 
