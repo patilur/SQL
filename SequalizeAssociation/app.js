@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('./utils/db-connection')
 const app = express();
 const studentRoutes = require('./routes/studentRoutes')
+const courseRoutes = require('./routes/courseRoute');
 
 require('./model')
 // Logging Middleware
@@ -17,6 +18,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/students', studentRoutes);
+app.use('/course', courseRoutes);
 
 
 // 404 Handler (ALWAYS LAST)
