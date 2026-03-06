@@ -13,7 +13,15 @@ window.addEventListener("DOMContentLoaded", () => {
             });
 
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+
+            if (err.response) {
+                alert(err.response.data.message);
+            } else {
+                console.log(err);
+            }
+
+        });
 
 });
 
@@ -37,17 +45,26 @@ function onSubmitHandler(event) {
     if (editingUserId) {
 
         axios.put(`http://localhost:3000/users/update/${editingUserId}`, userDetails)
-            .then(() => {
+            .then((response) => {
 
                 removeUserFromScreen(editingUserId);
 
-                userDetails.id = editingUserId; // keep same id
-                displayUserOnScreen(userDetails);
+                displayUserOnScreen(response.data.data);
 
                 editingUserId = null;
 
+                clearForm();
+
             })
-            .catch(err => console.log(err));
+            .catch((err) => {
+
+                if (err.response) {
+                    alert(err.response.data.message);
+                } else {
+                    console.log(err);
+                }
+
+            });
 
     }
 
@@ -59,15 +76,20 @@ function onSubmitHandler(event) {
 
                 displayUserOnScreen(response.data.data);
 
+                clearForm();
+
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+
+                if (err.response) {
+                    alert(err.response.data.message);
+                } else {
+                    console.log(err);
+                }
+
+            });
 
     }
-
-    // Clear form
-    document.getElementById("username").value = "";
-    document.getElementById("email").value = "";
-    document.getElementById("phoneno").value = "";
 
 }
 
@@ -101,7 +123,6 @@ function displayUserOnScreen(user) {
     };
 
 
-
     // EDIT BUTTON
     const editBtn = document.createElement("button");
 
@@ -116,7 +137,6 @@ function displayUserOnScreen(user) {
         editingUserId = user.id;
 
     };
-
 
 
     li.appendChild(deleteBtn);
@@ -135,9 +155,16 @@ function removeUserFromScreen(userId) {
     const childNode = document.getElementById(userId);
 
     if (childNode) {
-
         parentNode.removeChild(childNode);
-
     }
+
+}
+
+
+function clearForm() {
+
+    document.getElementById("username").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("phoneno").value = "";
 
 }

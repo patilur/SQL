@@ -19,6 +19,11 @@ const addEntries = async (req, res) => {
 
     } catch (err) {
         console.log(err);
+        if (err.name === "SequelizeUniqueConstraintError") {
+            return res.status(400).json({
+                message: "Email or Phone number already exists"
+            });
+        }
         res.status(500).json({
             message: "Unable to make entry"
         });
@@ -74,6 +79,11 @@ const updateEntry = async (req, res) => {
 
     } catch (err) {
         console.log(err);
+        if (err.name === "SequelizeUniqueConstraintError") {
+            return res.status(400).json({
+                message: "Email or Phone number already exists"
+            });
+        }
         res.status(500).json({
             message: "User cannot be updated"
         });
