@@ -1,11 +1,10 @@
 const Bus = require('../model/busModel');
 const { Op } = require('sequelize');
-
 const Booking = require('../model/bookingModel');
 const User = require('../model/userModel');
 
-const getBusBookings = async (req, res) => {
 
+const getBusBookings = async (req, res) => {
     try {
 
         const busId = req.params.id;
@@ -24,12 +23,15 @@ const getBusBookings = async (req, res) => {
         res.status(200).json(bookings);
 
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.log(error);
+        res.status(500).json({ message: "Error fetching bookings" });
     }
-
 };
 
-module.exports = { getBusBookings };
+
+
+
+
 const addBus = async (req, res) => {
 
     try {
@@ -57,7 +59,7 @@ const getBus = async (req, res) => {
 
         const seats = parseInt(req.params.seats);
 
-        const buses = await BusDetails.findAll({
+        const buses = await Bus.findAll({
             where: {
                 availableSeats: {
                     [Op.gt]: seats

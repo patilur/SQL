@@ -3,8 +3,8 @@ const usersRoute = require('./routes/userRoutes')
 const db = require('./utils/db-connection')
 const busRoute = require('./routes/busRoutes')
 const app = express();
-const userModel = require('./model/userModel')
-const busModel = require('./model/busModel')
+const { User, Bus, Booking } = require('./model/index');
+
 const bookingRoute = require('./routes/bookingRoute');
 
 // Logging Middleware
@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 
 app.use('/users', usersRoute);
 app.use('/bus', busRoute);
-app.use('/booking', bookingRoute);
+app.use('/', bookingRoute);
 
 // 404 Handler (ALWAYS LAST)
 app.use((req, res) => {

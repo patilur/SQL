@@ -1,34 +1,26 @@
 //const connection = require('../utils/db-connection');
 const db = require('../utils/db-connection');
 const User = require('../model/userModel');
-
 const Booking = require('../model/bookingModel');
 const Bus = require('../model/busModel');
 
 const getUserBookings = async (req, res) => {
 
-    try {
+    const userId = req.params.id;
 
-        const userId = req.params.id;
+    const bookings = await Booking.findAll({
+        where: { userId: userId },
+        attributes: ['id', 'seatNumber'],
+        include: [
+            {
+                model: Bus,
+                attributes: ['busNumber']
+            }
+        ]
+    });
 
-        const bookings = await Booking.findAll({
-            where: { userId: userId },
-            attributes: ['id', 'seatNumber'],
-            include: [
-                {
-                    model: Bus,
-                    attributes: ['busNumber']
-                }
-            ]
-        });
-
-        res.status(200).json(bookings);
-
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-
-};
+    res.json(bookings);
+}
 
 
 const addEntries = async (req, res) => {
@@ -39,7 +31,7 @@ const addEntries = async (req, res) => {
             name: name,
             email: email
         })
-        res.status(201).send(`User with name :${name} is created`)
+        res.status(201).json(user);
     } catch (err) {
         res.status(500).send('Unable to make entry');
     }

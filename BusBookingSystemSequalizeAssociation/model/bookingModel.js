@@ -8,9 +8,13 @@ const Booking = sequelize.define('Booking', {
         autoIncrement: true
     },
     seatNumber: {
-        type: DataTypes.INTEGER,
-        allowNull: false
+        type: DataTypes.INTEGER
+    },
+    userId: {
+        type: DataTypes.INTEGER
+    },
+    busId: {
+        type: DataTypes.INTEGER
     }
 });
-
 module.exports = Booking;
