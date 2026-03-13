@@ -1,9 +1,9 @@
 let blogContainer = document.getElementById("blogContainer");
-
+const api = 'http://localhost:3000/blogs/'
 // Load blogs when page loads
 window.addEventListener("DOMContentLoaded", () => {
 
-    axios.get("http://localhost:3000/blogs/getblogs")
+    axios.get(`${api}getblogs`)
         .then((res) => {
 
             const blogs = res.data;
@@ -38,7 +38,7 @@ function onSubmitHandler(event) {
         blogContent: content
     };
 
-    axios.post("http://localhost:3000/blogs/addBlog", blogDetails)
+    axios.post(`${api}addBlog`, blogDetails)
         .then((response) => {
 
             displayBlogOnScreen(response.data);
@@ -104,7 +104,7 @@ function addComment(blogId) {
         blogId: blogId
     };
 
-    axios.post("http://localhost:3000/blogs/addComment", commentDetails)
+    axios.post(`${api}addComment`, commentDetails)
         .then((res) => {
 
             displayComment(blogId, res.data);
@@ -134,7 +134,7 @@ function displayComment(blogId, comment) {
 
     deleteBtn.onclick = () => {
 
-        axios.delete(`http://localhost:3000/blogs/deleteComment/${comment.id}`)
+        axios.delete(`${api}deleteComment/${comment.id}`)
             .then(() => {
 
                 removeCommentFromScreen(comment.id);

@@ -4,7 +4,6 @@ const sequelize = require('../utils/db-connection');
 const Blog = sequelize.define(
     'Blog',
     {
-        // Model attributes are defined here
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -22,7 +21,6 @@ const Blog = sequelize.define(
         blogContent: {
             type: DataTypes.TEXT,
             allowNull: false
-            // allowNull defaults to true
         },
     },
 );

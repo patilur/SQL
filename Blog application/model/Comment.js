@@ -4,7 +4,6 @@ const sequelize = require('../utils/db-connection');
 const Comment = sequelize.define(
     'Comment',
     {
-        // Model attributes are defined here
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,

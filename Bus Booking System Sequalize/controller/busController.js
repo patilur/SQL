@@ -7,7 +7,7 @@ create table IF NOT EXISTS BusDetails(
         totalSeats INT,
         availableSeats INT
  */
-const { BusDetails } = require('../model/busModel');
+const { BusDetails, BookingDetails, paymentTable } = require('../model/busModel');
 const db = require('../utils/db-connection');
 const { Op } = require('sequelize');
 
