@@ -1,56 +1,72 @@
 const Users = require('../model/signupModel');
 const db = require('../utils/db-connection');
-
+const bcrypt = require('bcrypt');
 
 const addEntries = async (req, res) => {
     const { name, email, password } = req.body;
     console.log(req.body);
     try {
-        const user = await Users.create({
-            name, email, password
-        });
+        bcrypt.hash(password, 8, async (err, hash) => {
+            if (err) {
+                return res.status(500).json({
+                    message: "Error while hashing password"
+                });
+            }
+            try {
+                const user = await Users.create({
+                    name,
+                    email,
+                    password: hash
+                });
+                res.status(201).json({
+                    message: "User created successfully",
+                    data: user
+                });
 
-        res.status(201).json({
-            message: "User created successfully",
-            data: user
+            } catch (err) {
+                if (err.name === "SequelizeUniqueConstraintError") {
+                    return res.status(400).json({
+                        message: "Email already exists"
+                    });
+                }
+                res.status(500).json({
+                    message: "Unable to create user"
+                });
+            }
+
         });
 
     } catch (err) {
         console.log(err);
-        if (err.name === "SequelizeUniqueConstraintError") {
-            return res.status(400).json({
-                message: "Email already exists"
-            });
-        }
         res.status(500).json({
-            message: "Unable to make entry"
+            message: "Something went wrong"
         });
+
     }
 };
-
 const login = async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await Users.findOne({
-            where: {
-                email: email
-            }
+            where: { email: email }
         });
 
-        // if user not found
+        // user not found
         if (!user) {
             return res.status(404).json({
                 message: "User not found"
             });
         }
-        // check password
-        if (user.password !== password) {
+
+        // compare password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
             return res.status(401).json({
                 message: "Invalid password"
             });
         }
-        res.status(201).json({
-            message: "User Login successfully",
+        res.status(200).json({
+            message: "User login successfully",
             data: user
         });
 
