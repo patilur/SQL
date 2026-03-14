@@ -9,7 +9,8 @@ const addExpense = async (req, res) => {
         const expense = await Expense.create({
             expenseamount: expenseamount,
             description: description,
-            category: category
+            category: category,
+            userId: req.user.id
         });
 
         res.status(201).json({
@@ -31,7 +32,8 @@ const deleteExpense = async (req, res) => {
 
         const deleteexpense = await Expense.destroy({
             where: {
-                id: id
+                id: id,
+                userId: req.user.id
             }
         });
 
@@ -55,7 +57,11 @@ const deleteExpense = async (req, res) => {
 
 const getExpense = async (req, res) => {
     try {
-        const expenses = await Expense.findAll();
+        const expenses = await Expense.findAll({
+            where: {
+                userId: req.user.id
+            }
+        });
 
         res.status(200).json({
             message: "Expenses fetched successfully",
@@ -75,7 +81,13 @@ const editExpense = async (req, res) => {
         const { id } = req.params;
         const { expenseamount, description, category } = req.body;
 
-        const expense = await Expense.findByPk(id);
+        const expense = await Expense.findOne({
+            where: {
+                id: id,
+                userId: req.user.id   // ensure expense belongs to logged-in user
+            }
+        });
+
 
         if (!expense) {
             return res.status(404).json({

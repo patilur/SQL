@@ -1,7 +1,11 @@
 const Users = require('../model/signupModel');
 const db = require('../utils/db-connection');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
+const generateAccessToken = (id) => {
+    return jwt.sign({ userId: id }, '4345464565dfgddfd');
+}
 const addEntries = async (req, res) => {
     const { name, email, password } = req.body;
     console.log(req.body);
@@ -48,7 +52,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await Users.findOne({
-            where: { email: email }
+            where: { email }
         });
 
         // user not found
@@ -67,6 +71,7 @@ const login = async (req, res) => {
         }
         res.status(200).json({
             message: "User login successfully",
+            token: generateAccessToken(user.id),
             data: user
         });
 

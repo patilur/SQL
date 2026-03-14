@@ -67,7 +67,7 @@ function LogIn(event) {
             alert("Login successful");
 
             console.log(response.data);
-
+            localStorage.setItem('token', response.data.token)
             // Redirect to home page
             window.location.href = "/home";
 

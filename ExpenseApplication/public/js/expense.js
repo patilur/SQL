@@ -1,9 +1,9 @@
 let editingExpenseId = null;
-
+const token = localStorage.getItem('token');
 // Load users when page loads
 window.addEventListener("DOMContentLoaded", () => {
 
-    axios.get("http://localhost:3000/expense/getExpense")
+    axios.get("http://localhost:3000/expense/getExpense", { headers: { Authorization: token } })
         .then((res) => {
 
             const expenses = res.data.data;
@@ -52,7 +52,11 @@ function onSubmitHandler(event) {
     // UPDATE USER
     if (editingExpenseId) {
 
-        axios.put(`http://localhost:3000/expense/edit/${editingExpenseId}`, expenseDetails)
+        axios.put(`http://localhost:3000/expense/edit/${editingExpenseId}`, expenseDetails, {
+            headers: {
+                Authorization: token
+            }
+        })
             .then((response) => {
 
                 removeExpenseFromScreen(editingExpenseId);
@@ -79,7 +83,7 @@ function onSubmitHandler(event) {
     // CREATE USER
     else {
 
-        axios.post("http://localhost:3000/expense/addExpense", expenseDetails)
+        axios.post("http://localhost:3000/expense/addExpense", expenseDetails, { headers: { Authorization: token } })
             .then((response) => {
 
                 displayExpenseOnScreen(response.data.data);
@@ -120,7 +124,11 @@ function displayExpenseOnScreen(expense) {
 
     deleteBtn.onclick = () => {
 
-        axios.delete(`http://localhost:3000/expense/delete/${expense.id}`)
+        axios.delete(`http://localhost:3000/expense/delete/${expense.id}`, {
+            headers: {
+                Authorization: token
+            }
+        })
             .then(() => {
 
                 removeExpenseFromScreen(expense.id);
@@ -138,7 +146,7 @@ function displayExpenseOnScreen(expense) {
 
     editBtn.onclick = () => {
 
-        document.getElementById("expense").value = expense.expense;
+        document.getElementById("expense").value = expense.expenseamount;
         document.getElementById("desc").value = expense.description;
         document.getElementById("category").value = expense.category;
 
