@@ -2,9 +2,11 @@ const express = require('express');
 const db = require('./utils/db-connection')
 const app = express();
 const userModel = require('./model/signupModel');
+const expenseModel = require('./model/expenseModel');
 const path = require('path');
 const cors = require('cors');
 const userRoute = require('./routes/userRoutes')
+const expenseroute = require('./routes/expenseRoute');
 
 // Logging Middleware
 app.use((req, res, next) => {
@@ -33,8 +35,8 @@ app.get('/home', (req, res) => {
 });
 
 
-app.use('/expense/user', userRoute);
-
+app.use('/user', userRoute);
+app.use('/expense', expenseroute)
 
 // 404 Handler (ALWAYS LAST)
 app.use((req, res) => {
