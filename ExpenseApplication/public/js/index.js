@@ -18,8 +18,6 @@ function onSubmitHandler(event) {
         name, email, password
     };
 
-
-
     // CREATE USER
     axios.post("http://localhost:3000/expense/user/addUser", userDetails)
         .then((response) => {
@@ -35,6 +33,46 @@ function onSubmitHandler(event) {
 
         })
         .catch(err => {
+
+            if (err.response) {
+                alert(err.response.data.message);
+            } else {
+                console.log(err);
+            }
+
+        });
+
+}
+
+function LogIn(event) {
+
+    event.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if (!email || !password) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    const loginDetails = {
+        email,
+        password
+    };
+
+    axios.post("http://localhost:3000/expense/user/login", loginDetails)
+        .then((response) => {
+
+            alert("Login successful");
+
+            console.log(response.data);
+
+            // Redirect to home page
+            window.location.href = "/home";
+
+        })
+        .catch((err) => {
 
             if (err.response) {
                 alert(err.response.data.message);
