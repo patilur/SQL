@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cashfree Inline Modal Checkout</title>
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+    <style>
+        #payment-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #payment-container .modal-box {
+            width: 400px;
+            max-width: 90%;
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #payment-container .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Buy Premium Membership</h2>
+    <button id="buyPremium">Buy Premium</button>
+
+    <div id="payment-container">
+        <div class="modal-box">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <div id="cashfree-modal"></div>
+        </div>
+    </div>
+
+    <script>
+        const cashfree = Cashfree({ mode: "sandbox" });
+
+        const container = document.getElementById("payment-container");
+        const closeBtn = document.getElementById("closeModal");
+        closeBtn.addEventListener("click", () => { container.style.display = "none"; });
+
+        document.getElementById("buyPremium").addEventListener("click", async () => {
+            try {
+                const response = await fetch("/pay", { method: "POST" });
+                const data = await response.json();
+
+                container.style.display = "flex";
+
+                const result = await cashfree.checkout({
+                    paymentSessionId: data.paymentSessionId,
+                    redirectTarget: "#cashfree-modal"
+                });
+
+                if (result.error) {
+                    console.log("Error or modal closed", result.error);
+                    alert("Transaction failed!");
+                    container.style.display = "none";
+                }
+
+                if (result.paymentDetails) {
+                    console.log("Payment completed:", result.paymentDetails.paymentMessage);
+
+                    const statusRes = await fetch(`/payment-status/${data.orderId}`);
+                    const statusData = await statusRes.json();
+
+                    alert(statusData.orderStatus === "SUCCESS" ?
+                        "Transaction Successful! Premium activated." :
+                        "Transaction Failed");
+
+                    container.style.display = "none";
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Payment failed!");
+                container.style.display = "none";
+            }
+        });
+    </script>
+</body>
+
+</html>
