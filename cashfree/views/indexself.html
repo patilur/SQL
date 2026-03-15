@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cashfree Checkout</title>
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+</head>
+
+<body>
+
+    <h2>Buy Premium Membership</h2>
+    <button id="buyPremium">Buy Premium</button>
+
+    <script>
+        const cashfree = Cashfree({ mode: "sandbox" });
+
+        document.getElementById("buyPremium").addEventListener("click", async () => {
+            try {
+                const response = await fetch("/pay", { method: "POST" });
+                const data = await response.json();
+
+                await cashfree.checkout({
+                    paymentSessionId: data.paymentSessionId,
+                    redirectTarget: "_self"
+                });
+
+                // After redirect, check payment status
+                const statusRes = await fetch(`/payment-status/${data.orderId}`);
+                const statusData = await statusRes.json();
+
+                alert(statusData.orderStatus === "SUCCESS" ?
+                    "Transaction Successful! Premium activated." :
+                    "Transaction Failed");
+
+            } catch (err) {
+                console.error(err);
+                alert("Payment failed!");
+            }
+        });
+    </script>
+
+</body>
+
+</html>

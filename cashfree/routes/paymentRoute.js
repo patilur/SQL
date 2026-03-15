@@ -4,6 +4,6 @@ const { getPaymentPage, processPayment, getPaymentStatus } = require('../control
 
 router.get('/', getPaymentPage);                        // Serve frontend page
 router.post('/pay', processPayment);                    // Create order
-router.get('/payment-status/:paymentSessionId', getPaymentStatus); // Check status
+router.get('/payment-status/:orderId', getPaymentStatus); // Check status
 
 module.exports = router;

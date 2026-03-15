@@ -1,14 +1,20 @@
 const express = require('express');
-const path = require('path');
-const paymentRoutes = require('./routes/paymentRoute');
 const sequelize = require('./utils/db-connection');
+const paymentRoutes = require('./routes/paymentRoute');
 
 const app = express();
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use("/", paymentRoutes);
+app.use(express.static('views'));
 
-sequelize.sync({ alter: true }).then(() => {
-    app.listen(process.env.PORT || 3000, () => console.log("Server running on port 3000"));
-});
+app.use('/', paymentRoutes);
 
+sequelize.sync()
+    .then(() => {
+        app.listen(3000, () => {
+            console.log("Server running on port 3000");
+        });
+    })
+    .catch(err => console.log(err));

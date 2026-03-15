@@ -27,27 +27,43 @@ exports.processPayment = async (req, res) => {
 
 exports.getPaymentStatus = async (req, res) => {
     try {
-        const paymentSessionId = req.params.paymentSessionId;
-        const order = await Order.findOne({ where: { orderId: paymentSessionId } });
-        if (!order) return res.status(404).json({ message: "Order not found" });
+
+        const orderId = req.params.orderId;
+
+        const order = await Order.findOne({ where: { orderId } });
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
 
         const { Cashfree, CFEnvironment } = require("cashfree-pg");
+
         const cashfree = new Cashfree(
             CFEnvironment.SANDBOX,
             process.env.CASHFREE_APP_ID,
             process.env.CASHFREE_SECRET_KEY
         );
 
-        const response = await cashfree.PGOrderFetchPayments(paymentSessionId);
-        const status = response.data.payment_status;
+        // IMPORTANT LINE (Sharpner instruction)
+        const response = await cashfree.PGOrderFetchPayments(orderId);
+
+        const payment = response.data[0];
+
+        let status = "FAILED";
+
+        if (payment && payment.payment_status === "SUCCESS") {
+            status = "SUCCESS";
+
+            await User.update(
+                { isPremium: true },
+                { where: { id: order.userId } }
+            );
+        }
 
         await order.update({ status });
 
-        if (status === "SUCCESS") {
-            await User.update({ isPremium: true }, { where: { id: order.userId } });
-        }
-
         res.json({ orderStatus: status });
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Failed to fetch payment status" });

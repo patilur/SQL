@@ -1,19 +1,17 @@
 const { Sequelize } = require('sequelize');
 
-
 const sequelize = new Sequelize('cashfree', 'root', 'Urp!1456', {
     host: 'localhost',
-    dialect: 'mysql'
+    dialect: 'mysql',
+    logging: false
 });
 
-(async () => {
-    try {
-        await sequelize.authenticate();
-        console.log('Connection has been established successfully.');
-    } catch (error) {
-        console.error('Unable to connect to the database:', error);
-    }
-})();
+sequelize.authenticate()
+    .then(() => {
+        console.log("Database connected successfully");
+    })
+    .catch(err => {
+        console.error("Database connection error:", err);
+    });
 
 module.exports = sequelize;
-

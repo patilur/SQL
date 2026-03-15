@@ -15,7 +15,7 @@ const createOrder = async (orderId, amount, customerID, customerPhone) => {
         order_currency: "INR",
 
         customer_details: {
-            customer_id: customerID,
+            customer_id: String(customerID),
             customer_phone: customerPhone
         },
 
