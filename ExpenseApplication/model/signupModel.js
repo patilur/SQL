@@ -23,6 +23,10 @@ const Users = sequelize.define(
         password: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        isPremiumUser: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
     },
 );

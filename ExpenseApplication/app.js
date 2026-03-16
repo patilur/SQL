@@ -6,7 +6,7 @@ const cors = require('cors');
 const userRoute = require('./routes/userRoutes')
 const expenseroute = require('./routes/expenseRoute');
 const { User, Expense } = require('./model/index');
-
+const premiumRoutes = require('./routes/premium');
 // Logging Middleware
 app.use((req, res, next) => {
     console.log(`${req.method} request made to ${req.url}`);
@@ -34,6 +34,8 @@ app.get('/home', (req, res) => {
 });
 
 
+
+app.use('/premium', premiumRoutes);
 app.use('/user', userRoute);
 app.use('/expense', expenseroute)
 

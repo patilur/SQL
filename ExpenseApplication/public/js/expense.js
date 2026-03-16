@@ -1,5 +1,44 @@
 let editingExpenseId = null;
 const token = localStorage.getItem('token');
+
+function parseJwt(token) {
+    return JSON.parse(atob(token.split('.')[1]));
+}
+
+const decodedToken = parseJwt(token);
+
+if (decodedToken.isPremiumUser) {
+    document.getElementById("premiumMessage").innerText =
+        "You are a premium user now";
+}
+
+document.getElementById("leaderboardBtn").onclick = () => {
+
+    axios.get("http://localhost:3000/premium/leaderboard", {
+        headers: { Authorization: token }
+    })
+        .then(res => {
+
+            const leaderboard = res.data;
+
+            const parent = document.getElementById("leaderboardList");
+            parent.innerHTML = "";
+
+            leaderboard.forEach(user => {
+
+                const li = document.createElement("li");
+
+                li.textContent =
+                    `${user.name} - Total Expense: ${user.totalExpense}`;
+
+                parent.appendChild(li);
+
+            });
+
+        })
+        .catch(err => console.log(err));
+
+};
 // Load users when page loads
 window.addEventListener("DOMContentLoaded", () => {
 
