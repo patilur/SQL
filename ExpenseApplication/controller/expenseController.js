@@ -4,6 +4,7 @@ const db = require('../utils/db-connection');
 
 const addExpense = async (req, res) => {
     const { expenseamount, description, category } = req.body;
+    const t = await db.transaction();
     console.log(req.body);
     if (!expenseamount || !category) {
         return res.status(400).json({ message: "Amount and category required" });
@@ -14,7 +15,13 @@ const addExpense = async (req, res) => {
             description: description,
             category: category,
             userId: req.user.id
-        });
+        }, { transaction: t });
+
+        // Update the totalExpense column in the Users table
+        const totalExpense = Number(req.user.totalExpense) + Number(expenseamount);
+        await req.user.update({ totalExpense: totalExpense }, { transaction: t });
+
+        await t.commit();
 
         res.status(201).json({
             message: "Expense created successfully",

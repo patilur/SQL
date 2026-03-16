@@ -14,28 +14,32 @@ const getLeaderboard = async (req, res) => {
         //LEFT JOIN Expenses ON Users.id = Expenses.userId
         //GROUP BY Users.id
         //ORDER BY totalExpense DESC;
+        // const leaderboard = await User.findAll({
+        //     attributes: [
+        //         'id',
+        //         'name',
+        //         [
+        //             sequelize.fn(
+        //                 'COALESCE',
+        //                 sequelize.fn('SUM', sequelize.col('Expenses.expenseamount')),
+        //                 0
+        //             ),
+        //             'totalExpense'
+        //         ]
+        //     ],
+        //     include: [
+        //         {
+        //             model: Expense,
+        //             attributes: [],
+        //             required: false
+        //         }
+        //     ],
+        //     group: ['Users.id'],
+        //     order: [[sequelize.literal('totalExpense'), 'DESC']]
+        // });
         const leaderboard = await User.findAll({
-            attributes: [
-                'id',
-                'name',
-                [
-                    sequelize.fn(
-                        'COALESCE',
-                        sequelize.fn('SUM', sequelize.col('Expenses.expenseamount')),
-                        0
-                    ),
-                    'totalExpense'
-                ]
-            ],
-            include: [
-                {
-                    model: Expense,
-                    attributes: [],
-                    required: false
-                }
-            ],
-            group: ['Users.id'],
-            order: [[sequelize.literal('totalExpense'), 'DESC']]
+            attributes: ['id', 'name', 'totalExpense'], // Just pull the column
+            order: [['totalExpense', 'DESC']]
         });
         res.status(200).json(leaderboard);
 
