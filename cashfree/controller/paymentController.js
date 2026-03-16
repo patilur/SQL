@@ -1,71 +1,82 @@
-const path = require('path');
-const Order = require('../model/order');
-const User = require('../model/user');
-const { createOrder } = require('../utils/cashfree');
+const path = require("path");
+
+const {
+    createOrder,
+    getPaymentStatus
+} = require("../services/cashfreeService");
+
+const Payment = require("../model/paymentModel");
+
 
 exports.getPaymentPage = (req, res) => {
     res.sendFile(path.join(__dirname, "../views/index.html"));
 };
 
+
 exports.processPayment = async (req, res) => {
+
+    const orderId = "ORDER-" + Date.now();
+    const orderAmount = 2000;
+    const orderCurrency = "INR";
+    const customerID = "1";
+    const customerPhone = "9999999999";
+
     try {
-        const userId = 1; // Demo user
-        const amount = 2000;
-        const orderId = "ORDER_" + Date.now();
 
-        const paymentSessionId = await createOrder(orderId, amount, userId, "9999999999");
+        const paymentSessionId = await createOrder(
+            orderId,
+            orderAmount,
+            orderCurrency,
+            customerID,
+            customerPhone
+        );
 
-        // Save PENDING order
-        await Order.create({ orderId, userId, amount, status: "PENDING" });
+        await Payment.create({
+            orderId,
+            paymentSessionId,
+            orderAmount,
+            orderCurrency,
+            paymentStatus: "PENDING"
+        });
 
         res.json({ paymentSessionId, orderId });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Failed to create order" });
+
+    } catch (error) {
+
+        console.error("Error processing payment:", error.message);
+        res.status(500).json({ message: "Error processing payment" });
+
     }
 };
 
+
 exports.getPaymentStatus = async (req, res) => {
+
+    const orderId = req.params.orderId;
+
     try {
 
-        const orderId = req.params.orderId;
+        const orderStatus = await getPaymentStatus(orderId);
 
-        const order = await Order.findOne({ where: { orderId } });
+        const order = await Payment.findOne({
+            where: { orderId }
+        });
 
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
         }
 
-        const { Cashfree, CFEnvironment } = require("cashfree-pg");
+        // Update payment status
+        order.paymentStatus = orderStatus;
 
-        const cashfree = new Cashfree(
-            CFEnvironment.SANDBOX,
-            process.env.CASHFREE_APP_ID,
-            process.env.CASHFREE_SECRET_KEY
-        );
+        await order.save();
 
-        // IMPORTANT LINE (Sharpner instruction)
-        const response = await cashfree.PGOrderFetchPayments(orderId);
+        res.json({ orderStatus });
 
-        const payment = response.data[0];
+    } catch (error) {
 
-        let status = "FAILED";
+        console.error("Error fetching payment status:", error.message);
+        res.status(500).json({ message: "Error fetching payment status" });
 
-        if (payment && payment.payment_status === "SUCCESS") {
-            status = "SUCCESS";
-
-            await User.update(
-                { isPremium: true },
-                { where: { id: order.userId } }
-            );
-        }
-
-        await order.update({ status });
-
-        res.json({ orderStatus: status });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Failed to fetch payment status" });
     }
 };

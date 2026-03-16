@@ -2,100 +2,201 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Cashfree Inline Modal Checkout</title>
-    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-    <style>
-        #payment-container {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
+  <meta charset="UTF-8">
+  <title>Cashfree Inline Checkout</title>
 
-        #payment-container .modal-box {
-            width: 400px;
-            max-width: 90%;
-            background: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 
-        #payment-container .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      width: 400px;
+      text-align: center;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #cf_checkout {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 
 <body>
-    <h2>Buy Premium Membership</h2>
-    <button id="buyPremium">Buy Premium</button>
 
-    <div id="payment-container">
-        <div class="modal-box">
-            <span class="close-btn" id="closeModal">&times;</span>
-            <div id="cashfree-modal"></div>
-        </div>
-    </div>
+  <div class="card">
 
-    <script>
-        const cashfree = Cashfree({ mode: "sandbox" });
+    <h2>Cashfree Inline Payment</h2>
 
-        const container = document.getElementById("payment-container");
-        const closeBtn = document.getElementById("closeModal");
-        closeBtn.addEventListener("click", () => { container.style.display = "none"; });
+    <button id="renderBtn">Pay Now</button>
 
-        document.getElementById("buyPremium").addEventListener("click", async () => {
-            try {
-                const response = await fetch("/pay", { method: "POST" });
-                const data = await response.json();
+    Cashfree payment will load here
+    <div id="cf_checkout"></div>
 
-                container.style.display = "flex";
+  </div>
 
-                const result = await cashfree.checkout({
-                    paymentSessionId: data.paymentSessionId,
-                    redirectTarget: "#cashfree-modal"
-                });
+  <script src="/cahsfreeWeb_inline.js"></script>
 
-                if (result.error) {
-                    console.log("Error or modal closed", result.error);
-                    alert("Transaction failed!");
-                    container.style.display = "none";
-                }
-
-                if (result.paymentDetails) {
-                    console.log("Payment completed:", result.paymentDetails.paymentMessage);
-
-                    const statusRes = await fetch(`/payment-status/${data.orderId}`);
-                    const statusData = await statusRes.json();
-
-                    alert(statusData.orderStatus === "SUCCESS" ?
-                        "Transaction Successful! Premium activated." :
-                        "Transaction Failed");
-
-                    container.style.display = "none";
-                }
-
-            } catch (err) {
-                console.error(err);
-                alert("Payment failed!");
-                container.style.display = "none";
-            }
-        });
-    </script>
 </body>
 
 </html>
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cashfree Checkout Integration</title>
+
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+
+</head>
+
+<body>
+
+  <h1>Cashfree Checkout Integration</h1>
+
+  <button id="renderBtn">Pay Now</button>
+
+  <script src="/cashfreeWeb_self.js"></script>
+
+</body>
+
+</html> -->
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cashfree Checkout Integration</title>
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .card {
+      width: 600px;
+      padding: 20px;
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      background: #5cb85c;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Cashfree Checkout Integration</h1>
+  </header>
+
+  <div class="card">
+    <h3>Click below to open the checkout page in current tab</h3>
+    <button id="renderBtn">Pay Now</button>
+
+    <div id="cf_checkout"></div>
+  </div>
+
+
+  <script src="../public/cashfreeWeb_self.js"></script>
+
+  <script>
+    const cashfree = Cashfree({
+      mode: "sandbox",
+    });
+
+    document.getElementById("renderBtn").addEventListener("click", async () => {
+      try {
+
+        // Fetch payment session ID from backend
+        const response = await fetch("http://localhost:3000/pay", {
+          method: "POST",
+        });
+
+        const data = await response.json();
+        const paymentSessionId = data.paymentSessionId;
+        const orderId = data.orderId;
+
+        // Initialize checkout options
+        let checkoutOptions = {
+          paymentSessionId: paymentSessionId,
+
+          //? Modal payment options
+          redirectTarget: "_modal",
+        };
+
+        // Start the checkout process
+        const result = await cashfree.checkout(checkoutOptions);
+
+        if (result.error) {
+          // This will be true whenever user clicks on close icon inside the modal or any error happens during the payment
+          console.log("User has closed the popup or there is some payment error, Check for Payment Status");
+          console.log(result.error);
+        }
+        if (result.redirect) {
+          // This will be true when the payment redirection page couldn't be opened in the same window
+          // This is an exceptional case only when the page is opened inside an inAppBrowser
+          // In this case the customer will be redirected to return url once payment is completed
+          console.log("Payment will be redirected");
+        }
+        if (result.paymentDetails) {
+          // This will be called whenever the payment is completed irrespective of transaction status
+          console.log("Payment has been completed, Check for Payment Status");
+          console.log(result.paymentDetails.paymentMessage);
+
+          const response = await fetch(`http://localhost:3000/payment-status/${orderId}`, {
+            method: "GET",
+          });
+          const data = await response.json();
+          alert("Your payment is " + data.orderStatus)
+        }
+
+
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    });
+  </script>
+</body>
+
+</html> -->
