@@ -7,6 +7,7 @@ const userRoute = require('./routes/userRoutes')
 const expenseroute = require('./routes/expenseRoute');
 const { User, Expense } = require('./model/index');
 const premiumRoutes = require('./routes/premium');
+const paymentRoutes = require('./routes/paymentRoute');
 // Logging Middleware
 app.use((req, res, next) => {
     console.log(`${req.method} request made to ${req.url}`);
@@ -35,6 +36,8 @@ app.get('/home', (req, res) => {
 
 
 
+// Routes
+app.use('/', paymentRoutes);
 app.use('/premium', premiumRoutes);
 app.use('/user', userRoute);
 app.use('/expense', expenseroute)
@@ -46,7 +49,7 @@ app.use((req, res) => {
 
 
 
-db.sync({ force: true }).then(() => {
+db.sync({ force: false }).then(() => {
     app.listen(3000, (err) => {
         console.log('Server running')
     })

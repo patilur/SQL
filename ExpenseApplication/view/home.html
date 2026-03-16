@@ -5,13 +5,49 @@
     <meta charset="UTF-8">
     <title>Expense Tracker</title>
 
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        #buyPremiumBtn {
+            font-weight: bold;
+        }
+
+        #leaderboardBtn {
+            display: none;
+        }
+
+        .d-flex {
+            display: flex !important;
+            flex-direction: row !important;
+        }
+    </style>
+
 </head>
 
 <body class="bg-light">
 
-    <div class="container mt-5">
+    <nav class="navbar navbar-light bg-white shadow-sm mb-4">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span class="navbar-brand mb-0 h1">MyTracker</span>
+
+            <div class="d-flex align-items-center">
+                <button id="buyPremiumBtn" class="btn btn-warning">
+                    Buy Premium
+                </button>
+                <button id="logoutBtn" class="btn btn-outline-danger ms-2">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container mt-4">
+
         <div class="row justify-content-center">
+
             <div class="col-md-6">
 
                 <div class="card p-4 shadow">
@@ -21,26 +57,40 @@
                     <form onsubmit="onSubmitHandler(event)">
 
                         <div class="mb-3">
+
                             <label class="form-label">Expense Amount</label>
-                            <input type="number" id="expense" class="form-control" placeholder="Enter amount">
+
+                            <input type="number" id="expense" class="form-control" placeholder="Enter amount" required>
+
                         </div>
 
+
                         <div class="mb-3">
+
                             <label class="form-label">Description</label>
-                            <input type="text" id="desc" class="form-control" placeholder="Enter description">
+
+                            <input type="text" id="desc" class="form-control" placeholder="Enter description" required>
+
                         </div>
 
+
                         <div class="mb-3">
+
                             <label class="form-label">Category</label>
-                            <select id="category" class="form-select">
+
+                            <select id="category" class="form-select" required>
+
                                 <option value="">--Select Category--</option>
                                 <option value="food">Food</option>
                                 <option value="travel">Travel</option>
                                 <option value="shopping">Shopping</option>
                                 <option value="rent">Rent</option>
                                 <option value="electricity">Electricity</option>
+
                             </select>
+
                         </div>
+
 
                         <button type="submit" class="btn btn-primary w-100">
                             Add Expense
@@ -50,23 +100,51 @@
 
                 </div>
 
-                <!-- Expense List Card -->
-                <div class="card p-3 shadow mt-4">
-                    <h5 class="text-center mb-3">Expenses List</h5>
-                    <ul id="expenseList" class="list-group"></ul>
-                </div>
-                <h4 id="premiumMessage" style="color:green;"></h4>
-                <button id="leaderboardBtn" class="btn btn-warning">Show Leaderboard</button>
 
-                <ul id="leaderboardList"></ul>
+                <!-- EXPENSE LIST -->
+
+                <div class="card p-3 shadow mt-4">
+
+                    <h5 class="text-center mb-3">Expenses List</h5>
+
+                    <ul id="expenseList" class="list-group"></ul>
+
+                </div>
+
+
+                <!-- PREMIUM STATUS -->
+
+                <div class="text-center mt-4">
+
+                    <h4 id="premiumMessage" style="color:green;"></h4>
+
+                    <button id="leaderboardBtn" class="btn btn-warning mt-2">
+                        Show Leaderboard
+                    </button>
+
+                </div>
+
+
+                <!-- LEADERBOARD -->
+
+                <div class="card p-3 shadow mt-3">
+
+                    <h5 class="text-center">Leaderboard</h5>
+
+                    <ul id="leaderboardList" class="list-group"></ul>
+
+                </div>
+
             </div>
 
         </div>
+
     </div>
 
-</body>
 
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="/js/expense.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/expense.js"></script>
+
+</body>
 
 </html>

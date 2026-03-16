@@ -1,225 +1,197 @@
+// expense.js
 let editingExpenseId = null;
-const token = localStorage.getItem('token');
+let token = localStorage.getItem('token');
+const cashfree = Cashfree({ mode: "sandbox" }); // Initializing Cashfree V3
 
+/* ================= LOGOUT LOGIC ================= */
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+    logoutBtn.onclick = () => {
+        localStorage.removeItem('token'); // Clear session token
+        alert("Logged out successfully");
+        window.location.href = "/signin"; // Redirect to login page
+    };
+}
+
+/* ================= JWT PARSER ================= */
 function parseJwt(token) {
-    return JSON.parse(atob(token.split('.')[1]));
+    try {
+        if (!token) return {};
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        return JSON.parse(atob(base64)); // Decode payload to check isPremiumUser
+    } catch (err) {
+        return {};
+    }
 }
 
-const decodedToken = parseJwt(token);
+/* ================= PREMIUM UI UPDATES ================= */
+function showPremiumFeatures() {
+    const buyBtn = document.getElementById("buyPremiumBtn");
+    const leaderboardBtn = document.getElementById("leaderboardBtn");
+    const premiumMsg = document.getElementById("premiumMessage");
 
-if (decodedToken.isPremiumUser) {
-    document.getElementById("premiumMessage").innerText =
-        "You are a premium user now";
+    if (buyBtn) buyBtn.style.display = "none"; // Hide buy button for premium users
+    if (leaderboardBtn) leaderboardBtn.style.display = "block"; // Show leaderboard access
+    if (premiumMsg) premiumMsg.innerHTML = "Premium Member ";
 }
 
-document.getElementById("leaderboardBtn").onclick = () => {
+/* ================= PAGE LOAD INITIALIZATION ================= */
+window.addEventListener('DOMContentLoaded', () => {
+    const decodedToken = parseJwt(token);
 
-    axios.get("http://localhost:3000/premium/leaderboard", {
-        headers: { Authorization: token }
-    })
-        .then(res => {
+    if (decodedToken.isPremiumUser) {
+        showPremiumFeatures();
+    } else {
+        const leaderboardBtn = document.getElementById("leaderboardBtn");
+        if (leaderboardBtn) leaderboardBtn.style.display = "none";
+    }
 
-            const leaderboard = res.data;
-
-            const parent = document.getElementById("leaderboardList");
-            parent.innerHTML = "";
-
-            leaderboard.forEach(user => {
-
-                const li = document.createElement("li");
-
-                li.textContent =
-                    `${user.name} - Total Expense: ${user.totalExpense}`;
-
-                parent.appendChild(li);
-
-            });
-
-        })
-        .catch(err => console.log(err));
-
-};
-// Load users when page loads
-window.addEventListener("DOMContentLoaded", () => {
-
-    axios.get("http://localhost:3000/expense/getExpense", { headers: { Authorization: token } })
-        .then((res) => {
-
-            const expenses = res.data.data;
-
-            expenses.forEach(expense => {
-                // console.log("====", expense)
-                displayExpenseOnScreen(expense);
-            });
-
-        })
-        .catch(err => {
-
-            if (err.response) {
-                alert(err.response.data.message);
-            } else {
-                console.log(err);
-            }
-
-        });
-
+    fetchExpenses(); // Load existing user expenses
 });
 
+/* ================= EXPENSE OPERATIONS ================= */
+async function fetchExpenses() {
+    try {
+        const parent = document.getElementById("expenseList");
+        parent.innerHTML = "";
 
-// Form submit
+        const res = await axios.get("http://localhost:3000/expense/getExpense", {
+            headers: { Authorization: token }
+        });
+
+        res.data.data.forEach(expense => displayExpenseOnScreen(expense)); // Display each record
+    } catch (err) {
+        console.error("Error loading expenses:", err);
+    }
+}
+
 function onSubmitHandler(event) {
-
     event.preventDefault();
 
-
-
-    const expense = document.getElementById("expense").value;
-    const description = document.getElementById("desc").value;
-    const category = document.getElementById("category").value;
-
-    if (!expense || !description || !category) {
-        alert("Please fill all fields");
-        return;
-    }
-
     const expenseDetails = {
-        expenseamount: expense,
-        description,
-        category
+        expenseamount: document.getElementById("expense").value,
+        description: document.getElementById("desc").value,
+        category: document.getElementById("category").value
     };
 
-    // UPDATE USER
     if (editingExpenseId) {
-
         axios.put(`http://localhost:3000/expense/edit/${editingExpenseId}`, expenseDetails, {
-            headers: {
-                Authorization: token
-            }
+            headers: { Authorization: token }
         })
-            .then((response) => {
-
+            .then(res => {
                 removeExpenseFromScreen(editingExpenseId);
-
-                displayExpenseOnScreen(response.data.data);
-
+                displayExpenseOnScreen(res.data.data);
                 editingExpenseId = null;
-
                 clearForm();
-
-            })
-            .catch((err) => {
-
-                if (err.response) {
-                    alert(err.response.data.message);
-                } else {
-                    console.log(err);
-                }
-
-            });
-
-    }
-
-    // CREATE USER
-    else {
-
-        axios.post("http://localhost:3000/expense/addExpense", expenseDetails, { headers: { Authorization: token } })
-            .then((response) => {
-
-                displayExpenseOnScreen(response.data.data);
-
+            }).catch(err => alert(err.response.data.message));
+    } else {
+        axios.post("http://localhost:3000/expense/addExpense", expenseDetails, {
+            headers: { Authorization: token }
+        })
+            .then(res => {
+                displayExpenseOnScreen(res.data.data); // Add new entry to UI
                 clearForm();
-
-            })
-            .catch(err => {
-
-                if (err.response) {
-                    alert(err.response.data.message);
-                } else {
-                    console.log(err);
-                }
-
-            });
-
+            }).catch(err => alert(err.response.data.message));
     }
-
 }
-
-
 
 function displayExpenseOnScreen(expense) {
-
     const parentNode = document.getElementById("expenseList");
-
     const li = document.createElement("li");
-
     li.id = expense.id;
-
-    li.innerHTML = `${expense.expenseamount} - ${expense.description} - ${expense.category}`;
-
-    // DELETE BUTTON
-    const deleteBtn = document.createElement("button");
-
-    deleteBtn.textContent = "Delete";
-
-    deleteBtn.onclick = () => {
-
-        axios.delete(`http://localhost:3000/expense/delete/${expense.id}`, {
-            headers: {
-                Authorization: token
-            }
-        })
-            .then(() => {
-
-                removeExpenseFromScreen(expense.id);
-
-            })
-            .catch(err => console.log(err));
-
-    };
-
-
-    // EDIT BUTTON
-    const editBtn = document.createElement("button");
-
-    editBtn.textContent = "Edit";
-
-    editBtn.onclick = () => {
-
-        document.getElementById("expense").value = expense.expenseamount;
-        document.getElementById("desc").value = expense.description;
-        document.getElementById("category").value = expense.category;
-
-        editingExpenseId = expense.id;
-
-    };
-
-
-    li.appendChild(deleteBtn);
-    li.appendChild(editBtn);
-
+    li.className = "list-group-item d-flex justify-content-between align-items-center";
+    li.innerHTML = `
+        <div><strong>₹${expense.expenseamount}</strong> - ${expense.description} (${expense.category})</div>
+        <div>
+            <button class="btn btn-sm btn-info me-2" onclick="editExpense('${expense.id}','${expense.expenseamount}','${expense.description}','${expense.category}')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteExpense('${expense.id}')">Delete</button>
+        </div>`;
     parentNode.appendChild(li);
-
 }
 
+window.deleteExpense = (id) => {
+    axios.delete(`http://localhost:3000/expense/delete/${id}`, { headers: { Authorization: token } })
+        .then(() => removeExpenseFromScreen(id))
+        .catch(err => console.log(err));
+};
 
+window.editExpense = (id, amount, desc, cat) => {
+    document.getElementById("expense").value = amount;
+    document.getElementById("desc").value = desc;
+    document.getElementById("category").value = cat;
+    editingExpenseId = id;
+};
 
-function removeExpenseFromScreen(expenseID) {
+/* ================= PAYMENT INTEGRATION ================= */
+const buyBtn = document.getElementById("buyPremiumBtn");
+if (buyBtn) {
+    buyBtn.onclick = async () => {
+        try {
+            const response = await fetch("http://localhost:3000/pay", {
+                method: "POST",
+                headers: { "Authorization": token }
+            });
+            const data = await response.json();
 
-    const parentNode = document.getElementById("expenseList");
+            // Open Cashfree modal
+            await cashfree.checkout({
+                paymentSessionId: data.paymentSessionId,
+                redirectTarget: "_modal",
+            });
 
-    const childNode = document.getElementById(expenseID);
+            // Verify payment status
+            const responseStatus = await fetch(`http://localhost:3000/payment-status/${data.orderId}`, {
+                headers: { "Authorization": token }
+            });
+            const statusData = await responseStatus.json();
 
-    if (childNode) {
-        parentNode.removeChild(childNode);
-    }
-
+            if (statusData.orderStatus === "SUCCESS") {
+                alert("🎉 Congratulations! You are now a Premium Member.");
+                if (statusData.token) {
+                    localStorage.setItem('token', statusData.token); // Store updated token
+                    token = statusData.token;
+                }
+                showPremiumFeatures();
+            } else {
+                alert("Transaction Failed ❌");
+            }
+        } catch (err) {
+            console.error("Payment Error:", err);
+        }
+    };
 }
 
+/* ================= LEADERBOARD ================= */
+const leaderboardBtn = document.getElementById("leaderboardBtn");
+if (leaderboardBtn) {
+    leaderboardBtn.onclick = async () => {
+        try {
+            const res = await axios.get("http://localhost:3000/premium/leaderboard", {
+                headers: { Authorization: token }
+            });
+            const parent = document.getElementById("leaderboardList");
+            parent.innerHTML = "<h4>Leaderboard</h4>";
+            res.data.forEach(user => {
+                const li = document.createElement("li");
+                li.className = "list-group-item d-flex justify-content-between align-items-center";
+                li.innerHTML = `<span>${user.name}</span> <span class="badge bg-primary rounded-pill">₹${user.totalExpense || 0}</span>`;
+                parent.appendChild(li);
+            });
+        } catch (err) {
+            console.log("Leaderboard error:", err);
+        }
+    };
+}
+
+/* ================= HELPERS ================= */
+function removeExpenseFromScreen(id) {
+    const child = document.getElementById(id);
+    if (child) child.remove();
+}
 
 function clearForm() {
-
     document.getElementById("expense").value = "";
     document.getElementById("desc").value = "";
     document.getElementById("category").value = "";
-
 }

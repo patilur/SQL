@@ -1,32 +1,27 @@
 const jwt = require('jsonwebtoken');
 const User = require('../model/signupModel');
 
-const authenticate = (req, res, next) => {
 
+const authenticate = async (req, res, next) => { // Added async
     try {
-
         const token = req.header('Authorization');
-        console.log(token);
+        const decoded = jwt.verify(token, '4345464565dfgddfd');
 
-        const user = jwt.verify(token, '4345464565dfgddfd');
-        console.log("<<<", user.userId);
+        // Use await to ensure the user is found before moving to the next step
+        const user = await User.findByPk(decoded.userId);
 
-        User.findByPk(user.userId).then(user => {
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'User not found' });
+        }
 
-            console.log(JSON.stringify(user));
-
-            req.user = user;
-            next();
-
-        })
-
+        req.user = user;
+        next();
     } catch (err) {
-
-        console.log(err);
-        return res.status(401).json({ success: false });
-
+        return res.status(401).json({ success: false, message: 'Authentication failed' });
     }
 }
+
+module.exports = { authenticate };
 
 module.exports = {
     authenticate
