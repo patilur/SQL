@@ -23,6 +23,11 @@ const Expense = sequelize.define(
             allowNull: false
             // allowNull defaults to true
         },
+        type: {
+            type: Sequelize.ENUM('income', 'expense'),
+            allowNull: false,
+            defaultValue: 'expense'
+        }
     },
 );
 module.exports = Expense;

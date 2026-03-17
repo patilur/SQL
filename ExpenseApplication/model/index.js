@@ -11,7 +11,7 @@ Expense.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(Payment, { foreignKey: 'userId' });
 Payment.belongsTo(User, { foreignKey: 'userId' });
 
-User.hasMany(ForgotPassword);
-ForgotPassword.belongsTo(User);
+User.hasMany(ForgotPassword, { foreignKey: 'userId' });
+ForgotPassword.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { User, Expense };
+module.exports = { User, Expense,Payment,ForgotPassword };
