@@ -70,6 +70,9 @@
                             <label class="form-label">Description</label>
 
                             <input type="text" id="desc" class="form-control" placeholder="Enter description" required>
+                            <button type="button" id="suggestBtn" class="btn btn-info ms-2">
+                                Suggest Category
+                            </button>
 
                         </div>
 
@@ -78,16 +81,8 @@
 
                             <label class="form-label">Category</label>
 
-                            <select id="category" class="form-select" required>
-
-                                <option value="">--Select Category--</option>
-                                <option value="food">Food</option>
-                                <option value="travel">Travel</option>
-                                <option value="shopping">Shopping</option>
-                                <option value="rent">Rent</option>
-                                <option value="electricity">Electricity</option>
-
-                            </select>
+                            <input type="text" id="category" class="form-control" placeholder="Auto-filled by AI"
+                                readonly required>
 
                         </div>
 

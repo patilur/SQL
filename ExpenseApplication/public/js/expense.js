@@ -3,6 +3,45 @@ let editingExpenseId = null;
 let token = localStorage.getItem('token');
 const cashfree = Cashfree({ mode: "sandbox" }); // Initializing Cashfree V3
 
+
+const suggestBtn = document.getElementById("suggestBtn");
+const descInput = document.getElementById("desc");
+const categoryInput = document.getElementById("category");
+
+suggestBtn.addEventListener("click", () => {
+    const description = descInput.value;
+
+    if (!description) {
+        alert("Please enter description first");
+        return;
+    }
+
+    suggestCategory(description);
+});
+
+async function suggestCategory(description) {
+    try {
+        categoryInput.value = "Detecting...";
+
+        const res = await axios.post("http://localhost:3000/ask/category", {
+            description: description
+        });
+
+        const category = res.data.category;
+        console.log("==", category)
+
+        if (category) {
+            categoryInput.value =
+                category.charAt(0).toUpperCase() + category.slice(1);
+        } else {
+            categoryInput.value = "";
+        }
+
+    } catch (err) {
+        console.error("AI Error:", err);
+        categoryInput.value = "";
+    }
+}
 /* ================= LOGOUT LOGIC ================= */
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {

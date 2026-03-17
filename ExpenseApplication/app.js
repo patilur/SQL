@@ -8,6 +8,9 @@ const expenseroute = require('./routes/expenseRoute');
 const { User, Expense } = require('./model/index');
 const premiumRoutes = require('./routes/premium');
 const paymentRoutes = require('./routes/paymentRoute');
+const genAIRoute = require('./routes/genAIRoute');
+const dotenv = require("dotenv");
+dotenv.config();
 // Logging Middleware
 app.use((req, res, next) => {
     console.log(`${req.method} request made to ${req.url}`);
@@ -41,17 +44,17 @@ app.use('/', paymentRoutes);
 app.use('/premium', premiumRoutes);
 app.use('/user', userRoute);
 app.use('/expense', expenseroute)
+app.use('/ask', genAIRoute);
 
 // 404 Handler (ALWAYS LAST)
 app.use((req, res) => {
     res.status(404).send("Page not found");
 });
 
-
-
 db.sync({ force: false }).then(() => {
     app.listen(3000, (err) => {
         console.log('Server running')
+        console.log("Loaded Key:", process.env.GEMINI_API_KEY ? "Exists" : "Missing");
     })
 }).catch((err) => {
     console.log(err);
