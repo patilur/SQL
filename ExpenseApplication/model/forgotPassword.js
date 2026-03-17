@@ -10,7 +10,10 @@ const ForgotPassword = sequelize.define('forgotpassword', {
     isActive: {
         type: Sequelize.BOOLEAN,
         defaultValue: true
+    },
+    userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false
     }
 });
-
 module.exports = ForgotPassword;

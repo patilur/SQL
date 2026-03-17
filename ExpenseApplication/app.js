@@ -42,7 +42,9 @@ app.get('/forgotpassword', (req, res) => {
     res.sendFile(path.join(__dirname, 'view', 'forgot-password.html'));
 });
 
-
+app.get('/resetpassword', (req, res) => {
+    res.sendFile(path.join(__dirname, 'view', 'reset-password.html'));
+});
 
 // Routes
 
