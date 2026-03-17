@@ -1,4 +1,9 @@
 
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("forgotPassword").addEventListener("click", () => {
+        window.location.href = "/forgotpassword";
+    });
+});
 // Form submit
 function onSubmitHandler(event) {
 

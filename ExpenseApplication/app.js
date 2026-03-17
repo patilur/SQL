@@ -10,6 +10,7 @@ const premiumRoutes = require('./routes/premium');
 const paymentRoutes = require('./routes/paymentRoute');
 const genAIRoute = require('./routes/genAIRoute');
 const dotenv = require("dotenv");
+const passwordRoutes = require('./routes/password');
 dotenv.config();
 // Logging Middleware
 app.use((req, res, next) => {
@@ -37,9 +38,15 @@ app.get('/home', (req, res) => {
     res.sendFile(path.join(__dirname, 'view', 'home.html'));
 });
 
+app.get('/forgotpassword', (req, res) => {
+    res.sendFile(path.join(__dirname, 'view', 'forgot-password.html'));
+});
+
 
 
 // Routes
+
+app.use('/password', passwordRoutes);
 app.use('/', paymentRoutes);
 app.use('/premium', premiumRoutes);
 app.use('/user', userRoute);
