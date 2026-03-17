@@ -7,6 +7,7 @@ const addExpense = async (req, res) => {
     const t = await db.transaction();
     console.log(req.body);
     if (!expenseamount || !category) {
+        await t.rollback();
         return res.status(400).json({ message: "Amount and category required" });
     }
     try {
@@ -30,6 +31,7 @@ const addExpense = async (req, res) => {
 
     } catch (err) {
         console.log(err);
+        await t.rollback();
         res.status(500).json({
             message: "Unable to make entry"
         });
@@ -37,28 +39,46 @@ const addExpense = async (req, res) => {
 }
 
 const deleteExpense = async (req, res) => {
+    const t = await db.transaction();
     try {
         const { id } = req.params;
-
-        const deleteexpense = await Expense.destroy({
+        const expense = await Expense.findOne({
             where: {
                 id: id,
                 userId: req.user.id
-            }
+            }, transaction: t
         });
-
-        if (!deleteexpense) {
+        if (!expense) {
+            await t.rollback();
             return res.status(404).json({
                 message: "Expense not found"
             });
         }
+        const amount = expense.expenseamount;
+
+        await Expense.destroy({
+            where: {
+                id: id,
+                userId: req.user.id
+            }
+        }, { transaction: t });
+
+        // update totalExpense
+        const totalExpense = Number(req.user.totalExpense) - Number(amount);
+
+        await req.user.update(
+            { totalExpense },
+            { transaction: t }
+        );
+
+        await t.commit();
 
         res.status(200).json({
             message: "Expense deleted successfully"
         });
 
     } catch (error) {
-        console.log(error);
+        await t.rollback();
         res.status(500).json({
             message: "Error encountered while deleting"
         });
@@ -87,6 +107,7 @@ const getExpense = async (req, res) => {
 }
 
 const editExpense = async (req, res) => {
+    const t = await db.transaction();
     try {
         const { id } = req.params;
         const { expenseamount, description, category } = req.body;
@@ -94,31 +115,43 @@ const editExpense = async (req, res) => {
         const expense = await Expense.findOne({
             where: {
                 id: id,
-                userId: req.user.id   // ensure expense belongs to logged-in user
-            }
+                userId: req.user.id
+            }, transaction: t
         });
 
-
         if (!expense) {
+            await t.rollback();
             return res.status(404).json({
                 message: "Expense not found"
             });
         }
 
+        const oldAmount = expense.expenseamount;
+
         expense.expenseamount = expenseamount;
         expense.description = description;
         expense.category = category;
 
-        await expense.save();
+        await expense.save({ transaction: t });
+
+        // adjust totalExpense
+        const totalExpense =
+            Number(req.user.totalExpense) - Number(oldAmount) + Number(expenseamount);
+
+        await req.user.update(
+            { totalExpense },
+            { transaction: t }
+        );
+
+        await t.commit();
 
         res.status(200).json({
             message: "Expense updated successfully",
             data: expense
         });
-
     } catch (err) {
         console.log(err);
-
+        await t.rollback();
         res.status(500).json({
             message: "Expense cannot be updated"
         });
