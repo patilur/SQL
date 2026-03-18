@@ -77,7 +77,7 @@ const deleteExpense = async (req, res) => {
         const amount = Number(expense.expenseamount);
         const type = expense.type;
 
-        // ✅ DELETE EXPENSE
+
         await expense.destroy({
             where: {
                 id: id,
@@ -86,7 +86,7 @@ const deleteExpense = async (req, res) => {
             transaction: t
         });
 
-        // ✅ UPDATE totalExpense ONLY IF TYPE = expense
+
         let totalExpense = Number(req.user.totalExpense);
 
         if (type === "expense") {
@@ -116,24 +116,34 @@ const deleteExpense = async (req, res) => {
 
 const getExpense = async (req, res) => {
     try {
-        const expenses = await Expense.findAll({
-            where: {
-                userId: req.user.id
-            }
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await Expense.findAndCountAll({
+            where: { userId: req.user.id },
+            limit: limit,
+            offset: offset,
+            order: [['createdAt', 'DESC']]
         });
 
+        const totalPages = Math.ceil(count / limit);
+
         res.status(200).json({
-            message: "Expenses fetched successfully",
-            data: expenses
+            data: rows,
+            currentPage: page,
+            totalPages: totalPages,
+            totalExpenses: count
         });
 
     } catch (err) {
         console.log(err);
         res.status(500).json({
-            message: "Unable to find expense"
+            message: "Failed to fetch expenses"
         });
     }
-}
+};
 
 const editExpense = async (req, res) => {
     const t = await db.transaction();
