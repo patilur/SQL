@@ -191,7 +191,7 @@ const editExpense = async (req, res) => {
 
         let totalExpense = Number(req.user.totalExpense);
 
-        // 🧠 HANDLE ALL CASES
+        //HANDLE ALL CASES
 
         if (oldType === "expense" && newType === "expense") {
             // just difference

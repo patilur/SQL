@@ -1,4 +1,6 @@
 const express = require('express');
+const compression = require('compression');
+const logger = require('./utils/logger');
 const db = require('./utils/db-connection')
 const app = express();
 const path = require('path');
@@ -14,10 +16,11 @@ const passwordRoutes = require('./routes/password');
 dotenv.config();
 // Logging Middleware
 app.use((req, res, next) => {
-    console.log(`${req.method} request made to ${req.url}`);
+    logger.info(`${req.method} request to ${req.url}`);
     next();
 });
 
+app.use(compression());
 app.use(express.json());
 app.use(cors());
 

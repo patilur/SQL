@@ -2,9 +2,11 @@ const Users = require('../model/signupModel');
 const db = require('../utils/db-connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const dotenv = require("dotenv");
+dotenv.config();
 
 const generateAccessToken = (user) => {
-    return jwt.sign({ userId: user.id, isPremiumUser: user.isPremiumUser }, '4345464565dfgddfd');
+    return jwt.sign({ userId: user.id, isPremiumUser: user.isPremiumUser }, process.env.JWT_SECRET);
 }
 const addEntries = async (req, res) => {
     const { name, email, password } = req.body;
