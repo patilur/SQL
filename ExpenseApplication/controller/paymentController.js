@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const { createOrder, getPaymentStatus: fetchPaymentStatus } = require("../services/cashfreeService");
 const Payment = require("../model/paymentModel");
 const User = require("../model/signupModel");
+const dotenv = require("dotenv");
+dotenv.config();
 
 /* ================= PAYMENT PAGE ================= */
 exports.getPaymentPage = (req, res) => {
@@ -71,7 +73,7 @@ exports.getPaymentStatus = async (req, res) => {
                     userId: req.user.id,
                     isPremiumUser: true
                 },
-                '4345464565dfgddfd'
+                process.env.JWT_SECRET
             );
 
             // 4. Send token back to frontend

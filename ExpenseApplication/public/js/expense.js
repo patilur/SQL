@@ -2,6 +2,7 @@ let allExpenses = [];
 let editingExpenseId = null;
 let token = localStorage.getItem("token");
 
+
 const cashfree = new Cashfree({
     mode: "sandbox"
 });
@@ -36,7 +37,7 @@ function showPremiumFeatures() {
 async function fetchExpenses(page = 1) {
     try {
         const res = await axios.get(
-            `http://localhost:3000/expense/getExpense?page=${page}&limit=${rowsPerPage}`,
+            `/expense/getExpense?page=${page}&limit=${rowsPerPage}`,
             {
                 headers: { Authorization: token }
             }
@@ -79,7 +80,7 @@ function onSubmitHandler(event) {
 
     if (editingExpenseId) {
         axios.put(
-            `http://localhost:3000/expense/edit/${editingExpenseId}`,
+            `/expense/edit/${editingExpenseId}`,
             expenseDetails,
             { headers: { Authorization: token } }
         ).then(() => {
@@ -89,7 +90,7 @@ function onSubmitHandler(event) {
         }).catch(err => console.error(err));
     } else {
         axios.post(
-            "http://localhost:3000/expense/addExpense",
+            "/expense/addExpense",
             expenseDetails,
             { headers: { Authorization: token } }
         ).then(() => {
@@ -133,7 +134,7 @@ function displayExpenseOnScreen(expense) {
 
 /* ================= DELETE ================= */
 window.deleteExpense = (id) => {
-    axios.delete(`http://localhost:3000/expense/delete/${id}`, {
+    axios.delete(`/expense/delete/${id}`, {
         headers: { Authorization: token }
     }).then(() => {
         fetchExpenses(currentPage);
@@ -225,7 +226,7 @@ async function handleBuyPremium() {
     try {
         console.log("BUY CLICKED");
 
-        const res = await axios.post("http://localhost:3000/pay", {}, {
+        const res = await axios.post("/pay", {}, {
             headers: { Authorization: token }
         });
 
@@ -242,7 +243,7 @@ async function handleBuyPremium() {
         });
 
         const status = await axios.get(
-            `http://localhost:3000/payment-status/${data.orderId}`,
+            `/payment-status/${data.orderId}`,
             { headers: { Authorization: token } }
         );
 
@@ -273,7 +274,7 @@ async function suggestCategory(description) {
         const categoryInput = document.getElementById("category");
         categoryInput.value = "Detecting...";
 
-        const res = await axios.post("http://localhost:3000/ask/category", {
+        const res = await axios.post("/ask/category", {
             description
         });
 
@@ -359,7 +360,7 @@ document.getElementById("leaderboardBtn")?.addEventListener("click", async () =>
             return;
         }
 
-        const res = await axios.get("http://localhost:3000/premium/leaderboard", {
+        const res = await axios.get("/premium/leaderboard", {
             headers: { Authorization: token }
         });
 

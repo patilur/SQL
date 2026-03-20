@@ -1,6 +1,8 @@
 const { Cashfree, CFEnvironment } = require("cashfree-pg");
+const dotenv = require("dotenv");
+dotenv.config();
 
-const cashfree = new Cashfree(CFEnvironment.SANDBOX, "TEST1101852248229cdb052cfaff774922581011", "cfsk_ma_test_616b14826f5fdf24aa6095ff501c9c50_ea15ef32");
+const cashfree = new Cashfree(CFEnvironment.SANDBOX, process.env.CASHFREE_APP_ID, process.env.CASHFREE_SECRET_KEY);
 
 exports.createOrder = async (
     orderId,
