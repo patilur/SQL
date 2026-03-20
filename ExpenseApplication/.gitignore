@@ -11,3 +11,5 @@ npm-debug.log*
 
 # Database/OS files
 .DS_Store
+
+package-lock.json

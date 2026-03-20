@@ -9,6 +9,9 @@ const getBusBookings = async (req, res) => {
 
         const busId = req.params.id;
 
+        //SELECT b.id,b.seatNumber,u.name,u.email 
+        //FROM Bookings b JOIN Users u
+        //ON b.userId = u.id WHERE b.busId = ?;
         const bookings = await Booking.findAll({
             where: { busId: busId },
             attributes: ['id', 'seatNumber'],
@@ -59,6 +62,7 @@ const getBus = async (req, res) => {
 
         const seats = parseInt(req.params.seats);
 
+        //SELECT * FROM Buses WHERE availableSeats > ?
         const buses = await Bus.findAll({
             where: {
                 availableSeats: {

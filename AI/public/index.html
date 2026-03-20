@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Chat</title>
+</head>
+<body>
+    <h1>Ask Gemini</h1>
+    <form id="gemini-form">
+        <input type="text" id="prompt" placeholder="Ask something..." required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="response-container">
+        <p id="response"></p>
+    </div>
+
+    <script>
+        document.getElementById('gemini-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const promptValue = document.getElementById('prompt').value;
+            const responseElement = document.getElementById('response');
+
+            responseElement.innerText = "Thinking...";
+
+            try {
+                const res = await fetch('http://localhost:3000/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: promptValue })
+                });
+
+                const data = await res.json();
+                responseElement.innerText = data.response;
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                responseElement.innerText = "Error connecting to server.";
+            }
+        });
+    </script>
+</body>
+</html>

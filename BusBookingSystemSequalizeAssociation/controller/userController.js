@@ -7,7 +7,9 @@ const Bus = require('../model/busModel');
 const getUserBookings = async (req, res) => {
 
     const userId = req.params.id;
-
+    //SELECT b.id,b.seatNumber,bus.busNumber
+    //FROM Bookings b JOIN Buses bus 
+    //ON b.busId = bus.id WHERE b.userId = ?;
     const bookings = await Booking.findAll({
         where: { userId: userId },
         attributes: ['id', 'seatNumber'],

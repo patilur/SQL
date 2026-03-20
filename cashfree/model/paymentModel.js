@@ -18,12 +18,10 @@ const Payment = sequelize.define('payment', {
     orderCurrency: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: "INR"
     },
     paymentStatus: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: "PENDING" // PENDING / SUCCESS / FAILED
     }
 });
 
