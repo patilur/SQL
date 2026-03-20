@@ -33,7 +33,7 @@ exports.forgotPassword = async (req, res) => {
             }
         });
 
-        const resetLink = `http://localhost:3000/password/resetpassword/${token}`;
+        const resetLink = `${process.env.BASE_URL}/password/resetpassword/${token}`;
 
         // Send email
         await transporter.sendMail({

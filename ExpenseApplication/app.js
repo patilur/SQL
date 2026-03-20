@@ -64,7 +64,7 @@ app.use((req, res) => {
 });
 
 db.sync({ force: false }).then(() => {
-    app.listen(3000, (err) => {
+    app.listen(process.env.PORT || 3000, (err) => {
         console.log('Server running')
         console.log("Loaded Key:", process.env.GEMINI_API_KEY ? "Exists" : "Missing");
     })
