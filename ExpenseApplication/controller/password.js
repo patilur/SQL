@@ -1,0 +1,103 @@
+const { v4: uuidv4 } = require('uuid');
+const nodemailer = require('nodemailer');
+const path = require('path');
+const User = require('../model/signupModel');
+const ForgotPassword = require('../model/forgotPassword');
+const bcrypt = require('bcrypt');
+
+exports.forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ where: { email } });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Generate token
+        const token = uuidv4();
+
+        await ForgotPassword.create({
+            id: token,
+            userId: user.id,
+            isActive: true
+        });
+
+        // Setup email transporter
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL,          // your email
+                pass: process.env.EMAIL_PASSWORD  // app password
+            }
+        });
+
+        const resetLink = `${process.env.BASE_URL}/password/resetpassword/${token}`;
+
+        // Send email
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: email,
+            subject: "Reset Your Password",
+            html: `
+                <h3>Password Reset</h3>
+                <p>Click below link to reset your password:</p>
+                <a href="${resetLink}">${resetLink}</a>
+            `
+        });
+
+        res.status(200).json({ message: "Reset link sent successfully" });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Something went wrong" });
+    }
+};
+
+exports.getResetPasswordPage = async (req, res) => {
+    const token = req.params.token;
+
+    try {
+        const request = await ForgotPassword.findOne({ where: { id: token } });
+
+        if (!request || !request.isActive) {
+            return res.status(400).send("Invalid or expired link");
+        }
+
+        res.sendFile(path.join(__dirname, '../view/reset-password.html'));
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Something went wrong");
+    }
+};
+
+exports.updatePassword = async (req, res) => {
+    const token = req.params.token;
+    const { newPassword } = req.body;
+
+    try {
+        const request = await ForgotPassword.findOne({ where: { id: token } });
+
+        if (!request || !request.isActive) {
+            return res.status(400).json({ message: "Link expired" });
+        }
+
+        const user = await User.findByPk(request.userId);
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await user.update({ password: hashedPassword });
+
+        // deactivate token
+        request.isActive = false;
+        await request.save();
+
+        res.status(200).json({ message: "Password updated successfully" });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Something went wrong" });
+    }
+};

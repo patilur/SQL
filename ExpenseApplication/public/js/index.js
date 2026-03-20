@@ -1,4 +1,9 @@
 
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("forgotPassword").addEventListener("click", () => {
+        window.location.href = "/forgotpassword";
+    });
+});
 // Form submit
 function onSubmitHandler(event) {
 
@@ -18,7 +23,7 @@ function onSubmitHandler(event) {
     };
 
     // CREATE USER
-    axios.post("http://localhost:3000/user/addUser", userDetails)
+    axios.post("/user/addUser", userDetails)
         .then((response) => {
 
             console.log(response.data.data);
@@ -60,7 +65,7 @@ function LogIn(event) {
         password
     };
 
-    axios.post("http://localhost:3000/user/login", loginDetails)
+    axios.post("/user/login", loginDetails)
         .then((response) => {
 
             alert("Login successful");

@@ -70,6 +70,9 @@
                             <label class="form-label">Description</label>
 
                             <input type="text" id="desc" class="form-control" placeholder="Enter description" required>
+                            <button type="button" id="suggestBtn" class="btn btn-info ms-2">
+                                Suggest Category
+                            </button>
 
                         </div>
 
@@ -78,20 +81,19 @@
 
                             <label class="form-label">Category</label>
 
-                            <select id="category" class="form-select" required>
-
-                                <option value="">--Select Category--</option>
-                                <option value="food">Food</option>
-                                <option value="travel">Travel</option>
-                                <option value="shopping">Shopping</option>
-                                <option value="rent">Rent</option>
-                                <option value="electricity">Electricity</option>
-
-                            </select>
+                            <input type="text" id="category" class="form-control" placeholder="Auto-filled by AI"
+                                readonly required>
 
                         </div>
 
-
+                        <div class="mb-3">
+                            <label class="form-label">Type</label>
+                            <select id="type" class="form-select" required>
+                                <option value="">--Select Type--</option>
+                                <option value="expense">Expense</option>
+                                <option value="income">Income</option>
+                            </select>
+                        </div>
                         <button type="submit" class="btn btn-primary w-100">
                             Add Expense
                         </button>
@@ -99,7 +101,25 @@
                     </form>
 
                 </div>
+                <div class="card p-3 shadow mt-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="mb-2">
+                            <label class="form-label small mb-0">Rows:</label>
+                            <select id="rowsPerPage" class="form-select form-select-sm d-inline-block w-auto ms-1">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="40">40</option>
+                            </select>
+                        </div>
 
+                        <div class="d-flex align-items-center mb-2">
+                            <button id="prevPage" class="btn btn-sm btn-outline-secondary me-2">Previous</button>
+                            <span id="pageInfo" class="badge bg-light text-dark border">Page 1 of 1</span>
+                            <button id="nextPage" class="btn btn-sm btn-outline-secondary ms-2">Next</button>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- EXPENSE LIST -->
 
@@ -110,9 +130,45 @@
                     <ul id="expenseList" class="list-group"></ul>
 
                 </div>
+                <!-- SUMMARY SECTION -->
+                <div class="card p-3 shadow mt-4">
+                    <h5 class="text-center mb-3">Summary</h5>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Total Income:</span>
+                        <span class="text-success fw-bold">₹<span id="totalIncome">0</span></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-2">
+                        <span>Total Expense:</span>
+                        <span class="text-danger fw-bold">₹<span id="totalExpense">0</span></span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <span><strong>Balance:</strong></span>
+                        <span class="fw-bold">₹<span id="balance">0</span></span>
+                    </div>
+                </div>
 
 
-                <!-- PREMIUM STATUS -->
+                <div id="premiumSection" style="display:none;" class="card p-3 mt-4 shadow">
+
+                    <h5 class="text-center">Premium Features</h5>
+
+                    <div class="d-flex justify-content-between my-3">
+                        <button class="btn btn-outline-primary" onclick="filterExpenses('daily')">Daily</button>
+                        <button class="btn btn-outline-primary" onclick="filterExpenses('weekly')">Weekly</button>
+                        <button class="btn btn-outline-primary" onclick="filterExpenses('monthly')">Monthly</button>
+                    </div>
+
+                    <button id="downloadBtn" class="btn btn-success mb-3">
+                        Download Expenses
+                    </button>
+
+                    <ul id="filteredList" class="list-group"></ul>
+                </div>
 
                 <div class="text-center mt-4">
 

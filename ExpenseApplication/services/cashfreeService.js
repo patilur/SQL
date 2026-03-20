@@ -1,6 +1,8 @@
 const { Cashfree, CFEnvironment } = require("cashfree-pg");
+const dotenv = require("dotenv");
+dotenv.config();
 
-const cashfree = new Cashfree(CFEnvironment.SANDBOX, "TEST1101852248229cdb052cfaff774922581011", "cfsk_ma_test_616b14826f5fdf24aa6095ff501c9c50_ea15ef32");
+const cashfree = new Cashfree(CFEnvironment.SANDBOX, process.env.CASHFREE_APP_ID, process.env.CASHFREE_SECRET_KEY);
 
 exports.createOrder = async (
     orderId,
@@ -26,7 +28,7 @@ exports.createOrder = async (
 
             order_meta: {
                 // "return_url": "https://www.cashfree.com/devstudio/preview/pg/web/checkout?order_id={order_id}",
-                "return_url": "http://localhost:3000/payment-status/" + orderId,
+                "return_url": `${process.env.BASE_URL}/payment-status/` + orderId,
                 payment_methods: "ccc, upi, nb"
             },
             order_expiry_time: formattedExpiryDate, //!? Set the valid expiry date
