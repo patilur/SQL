@@ -1,4 +1,5 @@
 let blogContainer = document.getElementById("blogContainer");
+
 const api = 'http://localhost:3000/blogs/'
 // Load blogs when page loads
 window.addEventListener("DOMContentLoaded", () => {
@@ -130,7 +131,7 @@ function displayComment(blogId, comment) {
 
     const deleteBtn = document.createElement("button");
 
-    deleteBtn.textContent = "Delete";
+    deleteBtn.textContent = "X";
 
     deleteBtn.onclick = () => {
 

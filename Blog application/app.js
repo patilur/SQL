@@ -34,7 +34,7 @@ app.use((req, res) => {
 
 
 
-db.sync({ force: false }).then(() => {
+db.sync({ force: true }).then(() => {
     app.listen(3000, (err) => {
         console.log('Server running')
     })

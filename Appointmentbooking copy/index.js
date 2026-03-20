@@ -1,5 +1,5 @@
 const express = require('express');
-const path = require('path'); // ✅ import path
+const path = require('path');
 const usersRoute = require('./routes/userRoutes');
 const db = require('./utils/db-connection');
 const userModel = require('./model/userModel');
@@ -30,7 +30,7 @@ app.use((req, res) => {
     res.status(404).send("Page not found");
 });
 
-db.sync({ force: true }).then(() => {
+db.sync({ force: false }).then(() => {
     app.listen(3000, () => {
         console.log('Server running');
     });

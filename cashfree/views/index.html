@@ -2,90 +2,6 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <title>Cashfree Inline Checkout</title>
-
-  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-
-  <style>
-    body {
-      font-family: Arial;
-      background: #f5f5f5;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 50px;
-    }
-
-    .card {
-      background: white;
-      padding: 30px;
-      width: 400px;
-      text-align: center;
-      border-radius: 6px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    button {
-      padding: 10px 20px;
-      background: #28a745;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    #cf_checkout {
-      margin-top: 20px;
-    }
-  </style>
-</head>
-
-<body>
-
-  <div class="card">
-
-    <h2>Cashfree Inline Payment</h2>
-
-    <button id="renderBtn">Pay Now</button>
-
-    Cashfree payment will load here
-    <div id="cf_checkout"></div>
-
-  </div>
-
-  <script src="/cahsfreeWeb_inline.js"></script>
-
-</body>
-
-</html>
-<!-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cashfree Checkout Integration</title>
-
-  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-
-</head>
-
-<body>
-
-  <h1>Cashfree Checkout Integration</h1>
-
-  <button id="renderBtn">Pay Now</button>
-
-  <script src="/cashfreeWeb_self.js"></script>
-
-</body>
-
-</html> -->
-<!-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cashfree Checkout Integration</title>
@@ -138,7 +54,7 @@
   </div>
 
 
-  <script src="../public/cashfreeWeb_self.js"></script>
+  <!-- <script src="../public/cashfreeWeb_modal.js"></script> -->
 
   <script>
     const cashfree = Cashfree({
@@ -167,7 +83,15 @@
 
         // Start the checkout process
         const result = await cashfree.checkout(checkoutOptions);
+        // Always verify payment status after checkout
+        const responseStatus = await fetch(`http://localhost:3000/payment-status/${orderId}`);
 
+        const statusData = await responseStatus.json();
+
+        console.log("Payment Status:", statusData.orderStatus);
+
+        alert("Your payment is " + statusData.orderStatus);
+        
         if (result.error) {
           // This will be true whenever user clicks on close icon inside the modal or any error happens during the payment
           console.log("User has closed the popup or there is some payment error, Check for Payment Status");
@@ -199,4 +123,4 @@
   </script>
 </body>
 
-</html> -->
+</html>

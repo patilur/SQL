@@ -2,7 +2,7 @@ const path = require("path");
 
 const {
     createOrder,
-    getPaymentStatus
+    getPaymentStatus: fetchPaymentStatus
 } = require("../services/cashfreeService");
 
 const Payment = require("../model/paymentModel");
@@ -53,29 +53,32 @@ exports.processPayment = async (req, res) => {
 exports.getPaymentStatus = async (req, res) => {
 
     const orderId = req.params.orderId;
-
+    console.log("Checking payment status for:", orderId);
     try {
 
-        const orderStatus = await getPaymentStatus(orderId);
+        const paymentStatus = await fetchPaymentStatus(orderId);
+        console.log("Payment status:", paymentStatus);
+        if (paymentStatus === "SUCCESS") {
 
-        const order = await Payment.findOne({
-            where: { orderId }
-        });
+            await Payment.update(
+                { paymentStatus: "SUCCESS" },
+                { where: { orderId } }
+            );
 
-        if (!order) {
-            return res.status(404).json({ message: "Order not found" });
+        } else if (paymentStatus === "FAILED") {
+
+            await Payment.update(
+                { paymentStatus: "FAILED" },
+                { where: { orderId } }
+            );
+
         }
 
-        // Update payment status
-        order.paymentStatus = orderStatus;
-
-        await order.save();
-
-        res.json({ orderStatus });
+        res.json({ orderStatus: paymentStatus });
 
     } catch (error) {
 
-        console.error("Error fetching payment status:", error.message);
+        console.error("Error fetching payment status:", error);
         res.status(500).json({ message: "Error fetching payment status" });
 
     }

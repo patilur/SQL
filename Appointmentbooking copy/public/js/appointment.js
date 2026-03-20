@@ -41,7 +41,7 @@ function onSubmitHandler(event) {
         phoneno
     };
 
-    // UPDATE USER
+    // Update User
     if (editingUserId) {
 
         axios.put(`http://localhost:3000/users/update/${editingUserId}`, userDetails)

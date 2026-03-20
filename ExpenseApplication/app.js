@@ -1,7 +1,9 @@
 const express = require('express');
 const compression = require('compression');
 const logger = require('./utils/logger');
+const morgan = require('morgan')
 const db = require('./utils/db-connection')
+const fs = require('fs');
 const app = express();
 const path = require('path');
 const cors = require('cors');
@@ -20,7 +22,10 @@ app.use((req, res, next) => {
     next();
 });
 
+
+const accesslogstream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 app.use(compression());
+app.use(morgan('combined', { stream: accesslogstream }));
 app.use(express.json());
 app.use(cors());
 
@@ -57,6 +62,9 @@ app.use('/premium', premiumRoutes);
 app.use('/user', userRoute);
 app.use('/expense', expenseroute)
 app.use('/ask', genAIRoute);
+
+
+
 
 // 404 Handler (ALWAYS LAST)
 app.use((req, res) => {
