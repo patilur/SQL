@@ -4,7 +4,7 @@ require('winston-daily-rotate-file');
 const transport = new winston.transports.DailyRotateFile({
     filename: 'logs/application-%DATE%.log',
     datePattern: 'YYYY-MM-DD',
-    zippedArchive: true, // This enables compression for old logs
+    zippedArchive: true, // This enables compression for old logs.
     maxSize: '20m',
     maxFiles: '14d'
 });
