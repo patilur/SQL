@@ -198,29 +198,62 @@ function filterExpenses(type) {
 }
 
 /* ================= DOWNLOAD ================= */
-function downloadExpenses() {
-    const decoded = parseJwt(token);
+async function downloadExpenses() {
+    try {
+        const decoded = parseJwt(token);
 
-    if (!decoded.isPremiumUser) {
-        alert("Only Premium users can download");
-        return;
+        if (!decoded.isPremiumUser) {
+            alert("Only Premium users can download");
+            return;
+        }
+
+        const response = await axios.get(
+            '/expense/download',
+            { headers: { Authorization: token } }
+        );
+
+        if (response.status === 200) {
+            window.open(response.data.fileURL, "_blank");
+
+        } else {
+            throw new Error(response.data.message);
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("Download failed");
     }
-
-    let content = "Amount,Description,Category,Type\n";
-
-    allExpenses.forEach(exp => {
-        content += `${exp.expenseamount},${exp.description},${exp.category},${exp.type}\n`;
-    });
-
-    const blob = new Blob([content], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "expenses.csv";
-    a.click();
 }
 
+async function showDownloadHistory() {
+    try {
+        const response = await axios.get(
+            '/expense/downloaded-files',
+            { headers: { Authorization: token } }
+        );
+
+        const files = response.data.files;
+        console.log("-----files", files)
+        const list = document.getElementById("downloadList");
+        list.innerHTML = "";
+
+        files.forEach(file => {
+            const li = document.createElement("li");
+
+            const a = document.createElement("a");
+            a.href = file.fileURL;
+            a.textContent = `Download - ${new Date(file.createdAt).toLocaleString()}`;
+            a.target = "_blank";
+
+
+            li.appendChild(a);
+            list.appendChild(li);
+        });
+
+    } catch (err) {
+        console.log(err);
+    }
+}
 /* ================= BUY PREMIUM ================= */
 async function handleBuyPremium() {
     try {
@@ -320,6 +353,7 @@ window.addEventListener("DOMContentLoaded", () => {
     // buttons
     document.getElementById("buyPremiumBtn")?.addEventListener("click", handleBuyPremium);
     document.getElementById("downloadBtn")?.addEventListener("click", downloadExpenses);
+    document.getElementById("historyBtn")?.addEventListener("click", showDownloadHistory);
 
     document.getElementById("logoutBtn")?.addEventListener("click", () => {
         localStorage.removeItem("token");

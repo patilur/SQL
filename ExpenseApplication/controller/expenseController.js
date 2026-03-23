@@ -1,6 +1,7 @@
 const Expense = require('../model/expenseModel');
 const db = require('../utils/db-connection');
-
+const S3Service = require('../services/s3Service');
+const FileDownload = require('../model/fileDownloadModel');
 
 const addExpense = async (req, res) => {
     const { expenseamount, description, category, type } = req.body;
@@ -233,4 +234,77 @@ const editExpense = async (req, res) => {
     }
 };
 
-module.exports = { addExpense, deleteExpense, getExpense, editExpense }
+
+const downloadExpense = async (req, res) => {
+    console.log("function called============= Hello");
+
+    try {
+        if (!req.user.isPremiumUser) {
+            return res.status(403).json({
+                message: "Only premium users can download"
+            });
+        }
+        const expenses = await Expense.findAll({
+            where: { userId: req.user.id }
+        });
+
+        const userId = req.user.id;
+
+        // ✅ Convert to CSV
+        let content = "Amount,Description,Category,Type\n";
+
+        expenses.forEach(exp => {
+            content += `${exp.expenseamount},${exp.description},${exp.category},${exp.type}\n`;
+        });
+
+        // Filename
+        const filename = `Expenses-${userId}-${Date.now()}.csv`;
+
+        //Upload to S3
+        const fileURL = await S3Service.uploadToS3(content, filename);
+        //console.log("Saving file for user:", userId);
+        //console.log("File URL:", fileURL);
+        //save to DB
+        await FileDownload.create({
+            fileURL: fileURL,
+            userId: userId
+        });
+        //console.log("Saved record:", saved);
+
+        //const stringifiedExpense = JSON.stringify(expenses);
+        //const filename = `Expenses${userId}/${Date.now()}.txt`;
+        //const fileURL = await S3Service.uploadToS3(stringifiedExpense, filename);
+        res.status(200).json({ fileURL, success: true })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ fileURL: '', success: false, err: err });
+    }
+
+}
+
+const getDownloadedFiles = async (req, res) => {
+    try {
+
+        if (!req.user.isPremiumUser) {
+            return res.status(403).json({
+                message: "Only premium users can access download history"
+            });
+        }
+        const files = await FileDownload.findAll({
+            where: { userId: req.user.id },
+            order: [['createdAt', 'DESC']]
+        });
+
+        res.status(200).json({ files });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Failed to fetch files"
+        });
+    }
+};
+
+
+
+module.exports = { addExpense, deleteExpense, getExpense, editExpense, downloadExpense, getDownloadedFiles }
